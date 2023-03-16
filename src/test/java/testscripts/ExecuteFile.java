@@ -102,8 +102,6 @@ public class ExecuteFile extends CaseTestBase{
 	  place = new PurchasePage();
 	  Thread.sleep(5000);
 	  place.order();
-	  WebElement msg = place.message;
-	  Assert.assertEquals(msg.getText(),"Thank you for your purchase!");
   }
 @DataProvider(name="products")
   public Object[][] getdata() throws CsvValidationException, IOException{

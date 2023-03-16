@@ -7,6 +7,9 @@
         <methods>
           <include name="finalise"/>
           <include name="additem" invocation-numbers="1"/>
+          <include name="failure"/>
+          <include name="extentfinishUp"/>
+          <include name="Reports"/>
           <include name="setup"/>
         </methods>
       </class> <!-- testscripts.ExecuteFile -->
