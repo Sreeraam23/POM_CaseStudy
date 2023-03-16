@@ -1,6 +1,6 @@
 package base;
 
-import java.io.FileInputStream;
+import java.io.FileInputStream; 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
@@ -12,12 +12,18 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 public class CaseTestBase {
 	//include  property
 	//include WebDriverManager
 	public static Properties prop = null;
 	public static WebDriver driver = null;
 	
+	public static ExtentReports reports=null;
+	public static ExtentSparkReporter spark=null;
+	public static ExtentTest extentTest=null;
 	
 	public CaseTestBase() {
 		String path = System.getProperty("user.dir")+"//src//test//resources//config//config.properties";
@@ -49,6 +55,11 @@ public class CaseTestBase {
 			driver.get("https://www.demoblaze.com/index.html");
 						
 		}
+	}
+	public static void ExtentSetup() {
+		reports = new ExtentReports();
+		spark = new ExtentSparkReporter("target\\BlazeAppReport.html");
+		reports.attachReporter(spark);
 	}
 	
 }

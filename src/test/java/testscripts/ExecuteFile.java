@@ -1,6 +1,6 @@
 package testscripts;
 
-import java.io.FileReader;
+import java.io.FileReader; 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -10,15 +10,20 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.aventstack.extentreports.Status;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 import base.CaseTestBase;
+import commonUtils.Utility;
 import pageloader.OrderListPage;
 import pageloader.HomePage;
 import pageloader.OrderListDeletePage;
@@ -38,12 +43,18 @@ public class ExecuteFile extends CaseTestBase{
 	public int c_size;
 	String del_p_val;
 	public int del_c_size;
+	
+	@BeforeClass
+	public void Reports() {
+		ExtentSetup();
+	}
   @BeforeTest
   public void setup() {
 	  instance();
   }
   @Test(priority=1)
   public void login() throws InterruptedException {
+	  extentTest=reports.createTest("login");
 	  home = new HomePage();
 	  home.login_func();
 	  signin = new LoginPage();
@@ -56,11 +67,13 @@ public class ExecuteFile extends CaseTestBase{
 	
   @Test(priority=2,dataProvider = "products")
   public void additem(String cat,String pro) {
+	  extentTest=reports.createTest("additem");
 	  item = new Selectionpage();
 	  item.select(cat,pro);
   }
   @Test(priority=3)
   public void cart() {
+	  extentTest=reports.createTest("cart");
 	  home.viewcart();
 	  check = new OrderListPage();
 	  check.cart();
@@ -70,7 +83,8 @@ public class ExecuteFile extends CaseTestBase{
 
   @Test(priority=4,dependsOnMethods="cart")
   public void del_cart(){
-    home.delete_cart();
+	  extentTest=reports.createTest("del_cart");
+	  home.delete_cart();
 	  int before_cart = c_size;
 	  del = new OrderListDeletePage();
 	  del.delete();
@@ -83,12 +97,13 @@ public class ExecuteFile extends CaseTestBase{
   }
   @Test(priority=5)
   public void finalise() throws InterruptedException {
+	  extentTest=reports.createTest("finalise");
 	  home.purchase();
 	  place = new PurchasePage();
 	  Thread.sleep(5000);
 	  place.order();
 	  WebElement msg = place.message;
-//	  Assert.assertEquals(msg.getText(),"Thank you for your purchase!");
+	  Assert.assertEquals(msg.getText(),"Thank you for your purchase!");
   }
 @DataProvider(name="products")
   public Object[][] getdata() throws CsvValidationException, IOException{
@@ -104,4 +119,17 @@ public class ExecuteFile extends CaseTestBase{
 	  	return datalist.toArray(new Object[datalist.size()][]);
 	  
   }
+	@AfterMethod
+	public void failure(ITestResult result) throws IOException {
+		if (ITestResult.FAILURE == result.getStatus()) {
+			extentTest.log(Status.FAIL, result.getThrowable().getMessage());
+			String path = Utility.getScreenshotpath(driver);
+			extentTest.addScreenCaptureFromPath(path);
+		}
+	}
+
+	@AfterTest
+	public void extentfinishUp() {
+		reports.flush();
+	}
 }
